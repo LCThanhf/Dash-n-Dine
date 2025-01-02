@@ -71,6 +71,12 @@ const Cart = (props) => {
         'Content-Type': 'application/json'
       }
     });
+
+    if (!response.ok) {
+      throw new Error(`Failed to submit order: ${response.statusText}`);
+    }
+
+    
     setTimeout(() => {
       setIsSubmiting(false);
       setSubmited(true);
