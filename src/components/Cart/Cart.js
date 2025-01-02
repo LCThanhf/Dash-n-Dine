@@ -59,7 +59,7 @@ const Cart = (props) => {
     }
   
     setIsSubmiting(true);
-    await fetch("http://localhost:5000/api/orders", {
+    await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
       method: "POST",
       body: JSON.stringify({
         tableNumber: props.tableInfo.table_number,

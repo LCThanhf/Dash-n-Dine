@@ -15,7 +15,7 @@ const ServiceRequest = ({ onClose }) => {
     }
 
     setIsSubmitting(true);
-    await fetch('http://localhost:5000/api/requests', {
+    await fetch('https://dnd-backend-sigma.vercel.app/api/requests', {
       method: 'POST',
       body: JSON.stringify({
         tableNumber: tableNumber,

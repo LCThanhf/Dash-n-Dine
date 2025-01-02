@@ -18,7 +18,7 @@ function App() {
 
     if (tableNumber) {
       const fetchTableInfo = async () => {
-        const response = await fetch(`http://localhost:5000/api/table-info?tableNumber=${tableNumber}`);
+        const response = await fetch(`https://dnd-backend-sigma.vercel.app/api/table-info?tableNumber=${tableNumber}`);
         const data = await response.json();
         setTableInfo(data);
       };

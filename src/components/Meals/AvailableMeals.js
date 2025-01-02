@@ -14,7 +14,7 @@ const AvailableMeals = () => {
   useEffect(() => {
     const fetchMeals = async () => {
       const typeQuery = selectedType !== 'ALL' ? `?type=${selectedType}` : '';
-      const response = await fetch(`http://localhost:5000/api/food-items${typeQuery}`);
+      const response = await fetch(`https://dnd-backend-sigma.vercel.app/api/food-items${typeQuery}`);
 
       if (!response.ok) {
         throw new Error("Something went wrong!");
