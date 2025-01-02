@@ -59,29 +59,35 @@ const Cart = (props) => {
     }
   
     setIsSubmiting(true);
-    await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
-      method: "POST",
-      body: JSON.stringify({
-        tableNumber: props.tableInfo.table_number,
-        orderItems: cartContext.items,
-        totalAmount: cartContext.totalAmount,
-        paymentMethod: userData.paymentMethod,
-      }),
-      headers: {
-        'Content-Type': 'application/json'
+    try {
+      const response = await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          tableNumber: props.tableInfo.table_number,
+          orderItems: cartContext.items,
+          totalAmount: cartContext.totalAmount,
+          paymentMethod: userData.paymentMethod,
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to submit order: ${response.statusText}`);
       }
-    });
+  
 
-    if (!response.ok) {
-      throw new Error(`Failed to submit order: ${response.statusText}`);
-    }
 
-    
-    setTimeout(() => {
+      setTimeout(() => {
+        setIsSubmiting(false);
+        setSubmited(true);
+        cartContext.clearCart();
+      }, 1500); // Delay of 1.5 seconds
+    } catch (error) {
+      console.error('Error submitting order:', error);
       setIsSubmiting(false);
-      setSubmited(true);
-      cartContext.clearCart();
-    }, 1500); // Delay of 1.5 seconds
+    }
   };
 
   const showQrCodeHandler = (userData) => {
