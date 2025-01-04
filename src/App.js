@@ -12,15 +12,26 @@ function App() {
 
   useEffect(() => {
     const url = window.location.href;
-    const tableNumberMatch = url.match(/\/table(\d+)/);
+    const tableNumberMatch = url.match(/table(\d+)/);
     const tableNumber = tableNumberMatch ? tableNumberMatch[1] : null;
     setTableNumber(tableNumber);
 
     if (tableNumber) {
       const fetchTableInfo = async () => {
-        const response = await fetch(`https://dnd-backend-sigma.vercel.app/api/table-info?tableNumber=${tableNumber}`);
-        const data = await response.json();
-        setTableInfo(data);
+        try {
+          console.log('Fetching table info for table:', tableNumber);
+          const response = await fetch(`https://dnd-backend-sigma.vercel.app/api/table-info?tableNumber=${tableNumber}`);
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch table info');
+          }
+
+          const data = await response.json();
+          console.log('Received table info:', data);
+          setTableInfo(data);
+        } catch (error) {
+          console.error('Error fetching table info:', error);
+        }
       };
 
       fetchTableInfo();

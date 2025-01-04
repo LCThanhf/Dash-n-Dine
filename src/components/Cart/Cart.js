@@ -53,16 +53,18 @@ const Cart = (props) => {
   };
 
   const submitOrderHandler = async (userData) => {
+    console.log('Current table info:', props.tableInfo); // Debug log
+  
     if (!props.tableInfo || !props.tableInfo.table_number) {
       console.error('Table info is missing:', props.tableInfo);
+      alert('Please ensure you are at a valid table');
       return;
     }
   
     setIsSubmiting(true);
     try {
-      // Format orderItems to match database structure
       const orderData = {
-        tableNumber: props.tableInfo.table_number, // Remove parseInt
+        tableNumber: props.tableInfo.table_number,
         orderItems: cartContext.items.map(item => ({
           id: item.id,
           name: item.name,
@@ -75,7 +77,6 @@ const Cart = (props) => {
   
       console.log('Submitting order data:', orderData);
   
-      // Add error handling for response
       const response = await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
         method: "POST",
         headers: {
