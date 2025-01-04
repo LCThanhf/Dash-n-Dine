@@ -60,37 +60,36 @@ const Cart = (props) => {
   
     setIsSubmiting(true);
     try {
-      // Validate order items
-      if (!cartContext.items || cartContext.items.length === 0) {
-        throw new Error('No items in cart');
-      }
-  
-      // Format order data
+      // Format order
       const orderData = {
         tableNumber: props.tableInfo.table_number,
         orderItems: cartContext.items.map(item => ({
+          id: item.id,
           name: item.name,
           amount: item.amount,
-          price: item.price
+          price: item.price,
         })),
-        totalAmount: cartContext.totalAmount,
-        paymentMethod: userData.paymentMethod
+        totalAmount: Math.round(cartContext.totalAmount),
+        paymentMethod: userData.paymentMethod || 'cash'
       };
   
-      console.log('Submitting order:', orderData); // Debug log
-  
+      // Add request headers and error handling
       const response = await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify(orderData)
       });
   
       if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`Failed to submit order: ${response.status} - ${errorData}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to submit order: ${response.status} - ${errorText}`);
       }
+  
+      const responseData = await response.json();
+      console.log('Order submitted successfully:', responseData);
   
       setTimeout(() => {
         setIsSubmiting(false);
@@ -101,12 +100,13 @@ const Cart = (props) => {
     } catch (error) {
       console.error('Error submitting order:', error);
       setIsSubmiting(false);
-      // Optionally show error to user
+      // Show error to user
+      alert('Failed to submit order. Please try again.');
     }
   };
 
   const showQrCodeHandler = (userData) => {
-    submitOrderHandler(userData); // Directly submit the order for bank transfer payment
+    submitOrderHandler(userData);
   };
 
   const cartItems = (
