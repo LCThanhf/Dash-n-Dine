@@ -53,40 +53,55 @@ const Cart = (props) => {
   };
 
   const submitOrderHandler = async (userData) => {
-    if (!props.tableInfo) {
-      console.error('Table info is not available');
+    if (!props.tableInfo || !props.tableInfo.table_number) {
+      console.error('Table info is missing:', props.tableInfo);
       return;
     }
   
     setIsSubmiting(true);
     try {
+      // Validate order items
+      if (!cartContext.items || cartContext.items.length === 0) {
+        throw new Error('No items in cart');
+      }
+  
+      // Format order data
+      const orderData = {
+        tableNumber: props.tableInfo.table_number,
+        orderItems: cartContext.items.map(item => ({
+          name: item.name,
+          amount: item.amount,
+          price: item.price
+        })),
+        totalAmount: cartContext.totalAmount,
+        paymentMethod: userData.paymentMethod
+      };
+  
+      console.log('Submitting order:', orderData); // Debug log
+  
       const response = await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
         method: "POST",
-        body: JSON.stringify({
-          tableNumber: props.tableInfo.table_number,
-          orderItems: cartContext.items,
-          totalAmount: cartContext.totalAmount,
-          paymentMethod: userData.paymentMethod,
-        }),
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(orderData)
       });
   
       if (!response.ok) {
-        throw new Error(`Failed to submit order: ${response.statusText}`);
+        const errorData = await response.text();
+        throw new Error(`Failed to submit order: ${response.status} - ${errorData}`);
       }
   
-
-
       setTimeout(() => {
         setIsSubmiting(false);
         setSubmited(true);
         cartContext.clearCart();
-      }, 1500); // Delay of 1.5 seconds
+      }, 1500);
+  
     } catch (error) {
       console.error('Error submitting order:', error);
       setIsSubmiting(false);
+      // Optionally show error to user
     }
   };
 
