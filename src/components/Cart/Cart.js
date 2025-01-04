@@ -60,25 +60,25 @@ const Cart = (props) => {
   
     setIsSubmiting(true);
     try {
-      // Format order
+      // Ensure all required fields have valid values
       const orderData = {
-        tableNumber: props.tableInfo.table_number,
+        tableNumber: parseInt(props.tableInfo.table_number),
         orderItems: cartContext.items.map(item => ({
-          id: item.id,
+          id: parseInt(item.id),
           name: item.name,
-          amount: item.amount,
-          price: item.price,
+          amount: parseInt(item.amount),
+          price: parseFloat(item.price)
         })),
         totalAmount: Math.round(cartContext.totalAmount),
         paymentMethod: userData.paymentMethod || 'cash'
       };
   
-      // Add request headers and error handling
+      console.log('Submitting order data:', orderData); // Debug log
+  
       const response = await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(orderData)
       });
@@ -88,20 +88,17 @@ const Cart = (props) => {
         throw new Error(`Failed to submit order: ${response.status} - ${errorText}`);
       }
   
-      const responseData = await response.json();
-      console.log('Order submitted successfully:', responseData);
+      const data = await response.json();
+      console.log('Order submission successful:', data);
   
-      setTimeout(() => {
-        setIsSubmiting(false);
-        setSubmited(true);
-        cartContext.clearCart();
-      }, 1500);
+      setIsSubmiting(false);
+      setSubmited(true);
+      cartContext.clearCart();
   
     } catch (error) {
       console.error('Error submitting order:', error);
       setIsSubmiting(false);
-      // Show error to user
-      alert('Failed to submit order. Please try again.');
+      alert(`Failed to submit order: ${error.message}`);
     }
   };
 
