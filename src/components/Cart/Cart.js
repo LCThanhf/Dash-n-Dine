@@ -60,36 +60,37 @@ const Cart = (props) => {
   
     setIsSubmiting(true);
     try {
-      // Ensure all required fields have valid values
+      // Format orderItems to match database structure
       const orderData = {
-        tableNumber: parseInt(props.tableInfo.table_number),
+        tableNumber: props.tableInfo.table_number, // Remove parseInt
         orderItems: cartContext.items.map(item => ({
-          id: parseInt(item.id),
+          id: item.id,
           name: item.name,
-          amount: parseInt(item.amount),
-          price: parseFloat(item.price)
+          amount: item.amount,
+          price: item.price
         })),
-        totalAmount: Math.round(cartContext.totalAmount),
+        totalAmount: cartContext.totalAmount,
         paymentMethod: userData.paymentMethod || 'cash'
       };
   
-      console.log('Submitting order data:', orderData); // Debug log
+      console.log('Submitting order data:', orderData);
   
+      // Add error handling for response
       const response = await fetch("https://dnd-backend-sigma.vercel.app/api/orders", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify(orderData)
       });
   
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to submit order: ${response.status} - ${errorText}`);
-      }
+      const responseText = await response.text();
+      console.log('Response:', response.status, responseText);
   
-      const data = await response.json();
-      console.log('Order submission successful:', data);
+      if (!response.ok) {
+        throw new Error(`Failed to submit order: ${response.status} - ${responseText}`);
+      }
   
       setIsSubmiting(false);
       setSubmited(true);
@@ -98,7 +99,7 @@ const Cart = (props) => {
     } catch (error) {
       console.error('Error submitting order:', error);
       setIsSubmiting(false);
-      alert(`Failed to submit order: ${error.message}`);
+      alert(`Order submission failed: ${error.message}`);
     }
   };
 
