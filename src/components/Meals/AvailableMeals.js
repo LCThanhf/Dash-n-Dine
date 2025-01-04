@@ -13,31 +13,40 @@ const AvailableMeals = () => {
 
   useEffect(() => {
     const fetchMeals = async () => {
-      const typeQuery = selectedType !== 'ALL' ? `?type=${selectedType}` : '';
-      const response = await fetch(`https://dnd-backend-sigma.vercel.app/api/food-items${typeQuery}`);
-
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
+      try {
+        const typeQuery = selectedType !== 'ALL' ? `?type=${selectedType}` : '';
+        const response = await fetch(`https://dnd-backend-sigma.vercel.app/api/food-items${typeQuery}`);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to fetch meals: ${response.status} - ${errorText}`);
+        }
+  
+        const data = await response.json();
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid data format received');
+        }
+  
+        const loadedMeals = data.map(meal => ({
+          id: meal.id,
+          name: meal.name,
+          price: parseFloat(meal.price),
+          type: meal.type,
+          image: meal.image
+        }));
+  
+        setMeals(loadedMeals);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching meals:', error);
+        setLoading(false);
+        setHttpError(error.message);
       }
-
-      const data = await response.json();
-
-      const loadedMeals = data.map(meal => ({
-        id: meal.id,
-        name: meal.name,
-        price: meal.price,
-        type: meal.type,
-        image: meal.image,
-      }));
-
-      setMeals(loadedMeals);
-      setLoading(false);
     };
-
-    fetchMeals().catch((error) => {
-      setLoading(false);
-      setHttpError(error.message);
-    });
+  
+    setLoading(true);
+    fetchMeals();
   }, [selectedType]);
 
   const handleTypeChange = (type) => {
